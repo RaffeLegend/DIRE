@@ -6,7 +6,11 @@ import time
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
 
-from utils.datasets import create_dataloader
+# from utils.datasets import create_dataloader
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), "../RaffeModelTraining"))
+from src.data import create_dataloader
+
 from utils.earlystop import EarlyStopping
 from utils.eval import get_val_cfg, validate
 from utils.trainer import Trainer
@@ -14,7 +18,17 @@ from utils.utils import Logger
 
 if __name__ == "__main__":
     val_cfg = get_val_cfg(cfg, split="val", copy=True)
-    cfg.dataset_root = os.path.join(cfg.dataset_root, "train")
+    # cfg.dataset_root = os.path.join(cfg.dataset_root, "train")
+
+    cfg.data_source = "folder"
+    cfg.data_label = "train"
+    cfg.dataset_path = cfg.datasets_path
+    cfg.image_height = 224
+    cfg.image_width = 224
+    cfg.encoder = "imagenet"
+    cfg.task = "classification"
+    cfg.shuffle = True
+
     data_loader = create_dataloader(cfg)
     dataset_size = len(data_loader)
 

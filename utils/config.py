@@ -14,13 +14,15 @@ class DefaultConfigs(ABC):
     datasets_test = ["adm_res_abs_ddim20s"]
     mode = "binary"
     class_bal = False
-    batch_size = 64
+    batch_size = 32
     loadSize = 256
     cropSize = 224
     epoch = "latest"
     num_workers = 20
     serial_batches = False
     isTrain = True
+    datasets_path = ""
+    num_threads = 1
 
     # data augmentation
     rz_interp = ["bilinear"]
@@ -120,6 +122,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--gpus", default=[0], type=int, nargs="+")
 parser.add_argument("--exp_name", default="", type=str)
 parser.add_argument("--ckpt", default="model_epoch_latest.pth", type=str)
+parser.add_argument("--datasets_path", type=str, default="")
+parser.add_argument("--ckpt_dir", type=str, default="")
 parser.add_argument("opts", default=[], nargs=argparse.REMAINDER)
 args = parser.parse_args()
 
@@ -147,7 +151,9 @@ if args.opts:
 cfg.gpus: list = args.gpus
 os.environ["CUDA_VISIBLE_DEVICES"] = ", ".join([str(gpu) for gpu in cfg.gpus])
 cfg.exp_name = args.exp_name
-cfg.ckpt_path: str = os.path.join(cfg.ckpt_dir, args.ckpt)
-
+# cfg.ckpt_path: str = os.path.join(cfg.ckpt_dir, args.ckpt)
+cfg.ckpt_dir = args.ckpt_dir
+cfg.ckpt_path: str = args.ckpt
+cfg.datasets_path = args.datasets_path
 if isinstance(cfg.datasets, str):
     cfg.datasets = cfg.datasets.split(",")

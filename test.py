@@ -16,23 +16,21 @@ dataset_root = cfg.dataset_root  # keep it
 rows = []
 print(f"'{cfg.exp_name}:{model_name}' model testing on...")
 
-for i, dataset in enumerate(cfg.datasets_test):
-    cfg.dataset_root = os.path.join(dataset_root, dataset)
-    cfg.datasets = [""]
-    model = get_network(cfg.arch)
-    state_dict = torch.load(cfg.ckpt_path, map_location="cpu")
-    model.load_state_dict(state_dict["model"])
-    model.cuda()
-    model.eval()
+cfg.datasets = "DomainSet"
+cfg.root_dir = "./"
+model = get_network(cfg.arch)
+state_dict = torch.load(cfg.ckpt_path, map_location="cpu")
+model.load_state_dict(state_dict["model"])
+model.cuda()
+model.eval()
 
-    test_results = validate(model, cfg)
-    print(f"{dataset}:")
-    for k, v in test_results.items():
-        print(f"{k}: {v:.5f}")
-    print("*" * 50)
-    if i == 0:
-        rows.append(["TestSet"] + list(test_results.keys()))
-    rows.append([dataset] + list(test_results.values()))
+test_results = validate(model, cfg)
+dataset = cfg.datasets
+print(f"{dataset}:")
+for k, v in test_results.items():
+    print(f"{k}: {v:.5f}")
+print("*" * 50)
+rows.append(["TestSet"] + list(test_results.keys()))
 
 results_dir = os.path.join(cfg.root_dir, "data", "results")
 os.makedirs(results_dir, exist_ok=True)

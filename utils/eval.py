@@ -9,15 +9,19 @@ import torch.nn as nn
 from utils.config import CONFIGCLASS
 from utils.utils import to_cuda
 
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../RaffeModelTraining"))
+from src.data import create_dataloader
 
-def get_val_cfg(cfg: CONFIGCLASS, split="val", copy=True):
+
+def get_val_cfg(cfg: CONFIGCLASS, split="val", copy=False):
     if copy:
         from copy import deepcopy
 
         val_cfg = deepcopy(cfg)
     else:
         val_cfg = cfg
-    val_cfg.dataset_root = os.path.join(val_cfg.dataset_root, split)
+    #val_cfg.dataset_root = os.path.join(val_cfg.dataset_root, split)
     val_cfg.datasets = cfg.datasets_test
     val_cfg.isTrain = False
     # val_cfg.aug_resize = False
@@ -37,9 +41,21 @@ def get_val_cfg(cfg: CONFIGCLASS, split="val", copy=True):
 def validate(model: nn.Module, cfg: CONFIGCLASS):
     from sklearn.metrics import accuracy_score, average_precision_score, roc_auc_score
 
-    from utils.datasets import create_dataloader
+    # from utils.datasets import create_dataloader
 
+    cfg.data_source = "folder"
+    cfg.data_label = "test"
+    cfg.dataset_path = cfg.datasets_path
+    cfg.image_height = 224
+    cfg.image_width = 224
+    cfg.encoder = "imagenet"
+    cfg.task = "classification"
+    cfg.shuffle = False
+    cfg.num_threads = 1
+    print(cfg.dataset_path)
     data_loader = create_dataloader(cfg)
+    print(len(data_loader), cfg.dataset_path)
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     with torch.no_grad():
